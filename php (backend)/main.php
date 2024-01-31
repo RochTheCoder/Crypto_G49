@@ -35,9 +35,28 @@ class User {
         $this->db = $db;
     }
 
-
     public function registerUser($username, $password) {
-        // Implement user registration logic here
+        // Validate input
+        if (empty($username) || empty($password)) {
+            return false; // Input is not valid
+        }
+
+        // Hash the password
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+        // Check if the username is already taken
+        $checkQuery = "SELECT id FROM users WHERE username = '$username'";
+        $checkResult = $this->db->query($checkQuery);
+
+        if ($checkResult && $checkResult->num_rows > 0) {
+            return false; // Username already taken
+        }
+
+        // Insert the new user into the database
+        $insertQuery = "INSERT INTO users (username, password) VALUES ('$username', '$hashedPassword')";
+        $insertResult = $this->db->query($insertQuery);
+
+        return $insertResult; // Returns true on success, false on failure
     }
 
     public function loginUser($username, $password) {
